@@ -1,0 +1,55 @@
+[build-system]
+requires = ["hatchling>=1.18"]
+build-backend = "hatchling.build"
+
+[project]
+name = "boxlite-openai-agents"
+version = "0.1.0a1"
+description = "BoxLite as a local, embedded MicroVM SandboxClient for the OpenAI Agents SDK."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "BoxLite", email = "hi@boxlite.dev" }]
+keywords = [
+    "openai",
+    "openai-agents",
+    "sandbox",
+    "boxlite",
+    "microvm",
+    "kvm",
+    "hypervisor",
+    "agents",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries",
+]
+dependencies = [
+    "openai-agents>=0.14,<0.16",
+    "boxlite>=0.8.2",
+    "pydantic>=2.6",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8",
+    "pytest-asyncio>=0.23",
+]
+
+[project.urls]
+Homepage = "https://boxlite.dev"
+Source = "https://github.com/boxlite/boxlite-openai-agents"
+Issues = "https://github.com/boxlite/boxlite-openai-agents/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/boxlite_openai_agents"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
