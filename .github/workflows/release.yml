@@ -1,0 +1,61 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "boxlite-openai-agents-v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tooling
+        run: python -m pip install --upgrade pip build
+
+      - name: Resolve version from tag
+        id: meta
+        run: |
+          ref="${GITHUB_REF#refs/tags/boxlite-openai-agents-v}"
+          echo "version=${ref}" >> "$GITHUB_OUTPUT"
+
+      - name: Build sdist + wheel
+        run: python -m build
+
+      - name: Verify version matches pyproject
+        run: |
+          py_version=$(python -c "import tomllib,pathlib;print(tomllib.loads(pathlib.Path('pyproject.toml').read_text())['project']['version'])")
+          if [ "${py_version}" != "${{ steps.meta.outputs.version }}" ]; then
+            echo "tag version (${{ steps.meta.outputs.version }}) != pyproject version (${py_version})" >&2
+            exit 1
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
